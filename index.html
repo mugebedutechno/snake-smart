@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Snake: Petualangan Angka</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Google untuk estetika modern & playful -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Plus+Jakarta+Sans:wght@300..800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0b0f19;
+    }
+    .font-playful {
+      font-family: 'Fredoka', sans-serif;
+    }
+    /* Sembunyikan scrollbar untuk pengalaman imersif */
+    ::-webkit-scrollbar {
+      display: none;
+    }
+    /* Animasi Bersinar Neon */
+    .neon-border-cyan {
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+    }
+    .neon-border-gold {
+      box-shadow: 0 0 20px rgba(234, 179, 8, 0.6);
+    }
+    .neon-text-gold {
+      text-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
+    }
+    .neon-text-cyan {
+      text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+    }
+    .neon-text-emerald {
+      text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+  </style>
+</head>
+<body class="text-slate-100 flex flex-col min-h-screen justify-between overflow-x-hidden selection:bg-cyan-500 selection:text-slate-900">
+
+  <!-- TOP BAR -->
+  <header class="w-full bg-slate-900/80 backdrop-blur border-b border-slate-800 p-4 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="bg-gradient-to-tr from-cyan-500 to-emerald-400 p-2 rounded-xl shadow-lg">
+          <svg class="w-6 h-6 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-xl font-extrabold font-playful tracking-wide bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent">
+            MATH SNAKE
+          </h1>
+          <p class="text-xs text-slate-400 font-semibold tracking-wider">PETUALANGAN ANGKA</p>
+        </div>
+      </div>
+      
+      <!-- Audio Toggle Button -->
+      <button id="audio-toggle-btn" class="flex items-center gap-2 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-white px-3.5 py-2 rounded-xl border border-slate-700 transition duration-300 text-sm font-bold">
+        <span id="audio-icon">🔊</span>
+        <span id="audio-status" class="hidden sm:inline">Suara: Aktif</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-grow flex items-center justify-center p-4">
+    <div class="w-full max-w-5xl bg-slate-900/40 rounded-3xl border border-slate-800/80 p-6 backdrop-blur-md shadow-2xl relative overflow-hidden">
+      
+      <!-- Latar Belakang Dekoratif -->
+      <div class="absolute -top-40 -left-40 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- ================= MENU UTAMA ================= -->
+      <section id="menu-screen" class="space-y-8 relative z-10 py-4">
+        <div class="text-center space-y-3">
+          <span class="px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase bg-cyan-950/80 text-cyan-400 border border-cyan-800/50 inline-block">
+            Game Edukasi Matematika SD Kelas 4+
+          </span>
+          <h2 class="text-4xl md:text-6xl font-extrabold font-playful tracking-tight text-white leading-tight">
+            Ular Pintar, <br class="sm:hidden"><span class="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Jago Matematika!</span>
+          </h2>
+          <p class="text-slate-400 max-w-lg mx-auto text-sm md:text-base">
+            Kendalikan ularmu, pilih apel dengan jawaban matematika yang benar, dan raih skor tertinggi! Awas tabrakan dan jangan salah hitung!
+          </p>
+        </div>
+
+        <!-- Customization & Mode Select Grid -->
+        <div class="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+          <!-- KUSTOMISASI ULAR -->
+          <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-5 space-y-4">
+            <h3 class="text-base font-bold text-slate-300 flex items-center gap-2">
+              <span class="p-1 rounded bg-slate-800">🎨</span> Warna Ular Pemain
+            </h3>
+            
+            <!-- Pemain 1 Warna -->
+            <div class="space-y-2">
+              <p class="text-xs text-slate-400 font-semibold">Pemain 1 (Hijau/Cyan Standar):</p>
+              <div class="flex gap-2 flex-wrap">
+                <button onclick="setSnakeColor(1, '#10b981', '#34d399')" class="color-btn-1 border-2 border-emerald-400 p-1 bg-slate-900 rounded-lg flex items-center gap-2 text-xs font-bold text-emerald-400 transition hover:scale-105">
+                  <span class="w-4 h-4 rounded-full bg-emerald-500"></span> Emerald
+                </button>
+                <button onclick="setSnakeColor(1, '#06b6d4', '#67e8f9')" class="color-btn-1 border-2 border-transparent p-1 bg-slate-900 rounded-lg flex items-center gap-2 text-xs font-bold text-slate-400 transition hover:scale-105">
+                  <span class="w-4 h-4 rounded-full bg-cyan-500"></span> Cyan
+                </button>
+                <button onclick="setSnakeColor(1, '#ec4899', '#f472b6')" class="color-btn-1 border-2 border-transparent p-1 bg-slate-900 rounded-lg flex items-center gap-2 text-xs font-bold text-slate-400 transition hover:scale-105">
+                  <span class="w-4 h-4 rounded-full bg-pink-500"></span> Merah Muda
+                </button>
+                <button onclick="setSnakeColor(1, '#f59e0b', '#fbbf24')" class="color-btn-1 border-2 border-transparent p-1 bg-slate-900 rounded-lg flex items-center gap-2 text-xs font-bold text-slate-400 transition hover:scale-105">
+                  <span class="w-4 h-4 rounded-full bg-amber-500"></span> Amber
+                </button>
+              </div>
+            </div>
+
+            <!-- Pemain 2 Warna (Hanya untuk Mode Versus) -->
+            <div class="space-y-2 pt-2 border-t border-slate-800/80">
+              <p class="text-xs text-slate-400 font-semibold">Pemain 2 (Versus):</p>
+              <div class="flex gap-2 flex-wrap">
+                <button onclick="setSnakeColor(2, '#a855f7', '#c084fc')" class="color-btn-2 border-2 border-purple-400 p-1 bg-slate-900 rounded-lg flex items-center gap-2 text-xs font-bold text-purple-400 transition hover:scale-105">
+                  <span class="w-4 h-4 rounded-full bg-purple-500"></span> Purple
+                </button>
+                <button onclick="setSnakeColor(2, '#f43f5e', '#fb7185')" class="color-btn-2 border-2 border-transparent p-1 bg-slate-900 rounded-lg flex items-center gap-2 text-xs font-bold text-slate-400 transition hover:scale-105">
+                  <span class="w-4 h-4 rounded-full bg-rose-500"></span> Rose
+                </button>
+                <button onclick="setSnakeColor(2, '#eab308', '#fde047')" class="color-btn-2 border-2 border-transparent p-1 bg-slate-900 rounded-lg flex items-center gap-2 text-xs font-bold text-slate-400 transition hover:scale-105">
+                  <span class="w-4 h-4 rounded-full bg-yellow-500"></span> Kuning
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- PAPAN SKOR TERTINGGI & STATS -->
+          <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <h3 class="text-base font-bold text-slate-300 flex items-center gap-2 mb-3">
+                <span class="p-1 rounded bg-slate-800">🏆</span> Rekor Terbaik Anda
+              </h3>
+              <div class="space-y-2.5">
+                <div class="flex justify-between items-center bg-slate-900/80 px-3.5 py-2.5 rounded-xl border border-slate-800">
+                  <span class="text-xs font-semibold text-slate-400">Skor Tertinggi (1P)</span>
+                  <span id="best-score-disp" class="text-base font-bold text-cyan-400 font-playful">0 Poin</span>
+                </div>
+                <div class="flex justify-between items-center bg-slate-900/80 px-3.5 py-2.5 rounded-xl border border-slate-800">
+                  <span class="text-xs font-semibold text-slate-400">Ular Terpanjang</span>
+                  <span id="max-length-disp" class="text-base font-bold text-emerald-400 font-playful">0 Blok</span>
+                </div>
+              </div>
+            </div>
+            <div class="text-center pt-3 text-[11px] text-slate-500 font-medium">
+              Data rekor disimpan secara lokal di peramban Anda.
+            </div>
+          </div>
+        </div>
+
+        <!-- TOMBOL PILIHAN MODE -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-xl mx-auto">
+          <button onclick="startGame(1)" class="w-full sm:w-1/2 py-4 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-extrabold font-playful text-lg tracking-wide transition transform hover:-translate-y-1 active:translate-y-0 shadow-lg shadow-emerald-950/30">
+            🎮 MODE 1 PEMAIN
+          </button>
+          <button onclick="startGame(2)" class="w-full sm:w-1/2 py-4 px-6 rounded-2xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-extrabold font-playful text-lg tracking-wide transition transform hover:-translate-y-1 active:translate-y-0 shadow-lg shadow-cyan-950/30">
+            ⚔️ MODE 2 VERSUS
+          </button>
+        </div>
+
+        <!-- CARA BERMAIN SINGKAT -->
+        <div class="max-w-2xl mx-auto border-t border-slate-800/80 pt-6 text-center">
+          <p class="text-xs font-bold text-slate-400 mb-2">PANDUAN KONTROL CEPAT</p>
+          <div class="grid grid-cols-2 gap-4 text-[11px] text-slate-400 max-w-md mx-auto">
+            <div class="bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/60">
+              <span class="text-cyan-400 font-bold block mb-1">Pemain 1</span>
+              Gunakan <span class="bg-slate-800 text-white px-1.5 py-0.5 rounded font-mono font-bold">W-A-S-D</span> atau <span class="text-emerald-400">Swipe Layar</span>
+            </div>
+            <div class="bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/60">
+              <span class="text-purple-400 font-bold block mb-1">Pemain 2</span>
+              Gunakan tombol <span class="bg-slate-800 text-white px-1.5 py-0.5 rounded font-mono font-bold">↑-←-↓-→</span> (Keyboard)
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ================= SCREEN PERMAINAN ================= -->
+      <section id="game-screen" class="hidden space-y-4 relative z-10">
+        
+        <!-- HUD / HEADER STATISTIK GAME -->
+        <div id="hud-bar" class="flex flex-wrap items-center justify-between gap-3 bg-slate-950/80 p-4 rounded-2xl border border-slate-800">
+          
+          <!-- Sisi Kiri: Soal Aktif -->
+          <div class="flex items-center gap-3">
+            <div class="bg-slate-900 border border-slate-700/80 px-4 py-2.5 rounded-xl min-w-[150px] text-center">
+              <span class="block text-[10px] text-slate-400 font-bold tracking-widest uppercase">SOAL MATEMATIKA</span>
+              <span id="math-question" class="text-2xl font-extrabold font-playful tracking-wider text-white neon-text-cyan">...</span>
+            </div>
+            <!-- Timer Combo / Hitung Mundur khusus Mode 1P -->
+            <div id="combo-timer-container" class="hidden flex items-center gap-1.5 bg-amber-950/60 border border-amber-500/30 px-3 py-2 rounded-xl animate-pulse">
+              <span class="text-lg">⚡</span>
+              <div>
+                <span class="block text-[8px] text-amber-400 font-extrabold tracking-widest uppercase">COMBO EMAS</span>
+                <span id="combo-time-text" class="text-sm font-bold text-amber-300 font-playful">15s</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sisi Kanan: Skor & Nyawa -->
+          <div class="flex items-center gap-4 flex-wrap">
+            <!-- P1 Stats -->
+            <div class="bg-slate-900/60 px-3.5 py-1.5 rounded-xl border border-slate-800 text-right">
+              <span id="p1-title-hud" class="text-[10px] font-bold text-emerald-400 block uppercase">Pemain 1</span>
+              <span id="p1-score-hud" class="text-lg font-extrabold font-playful text-white">Skor: 0</span>
+              <span id="p1-hearts-hud" class="block text-xs text-rose-500 mt-0.5">❤️❤️❤️</span>
+            </div>
+
+            <!-- P2 Stats (Hanya muncul di Mode 2) -->
+            <div id="p2-hud-container" class="hidden bg-slate-900/60 px-3.5 py-1.5 rounded-xl border border-slate-800 text-right">
+              <span id="p2-title-hud" class="text-[10px] font-bold text-purple-400 block uppercase">Pemain 2</span>
+              <span id="p2-score-hud" class="text-lg font-extrabold font-playful text-white">Skor: 0</span>
+              <span id="p2-hearts-hud" class="block text-xs text-rose-500 mt-0.5">❤️❤️❤️</span>
+            </div>
+
+            <!-- Status Streak 1P -->
+            <div id="p1-streak-hud-container" class="bg-slate-900/60 px-3 py-2 rounded-xl border border-slate-800 text-center">
+              <span class="block text-[8px] text-slate-400 font-bold uppercase">STREAK JAWABAN</span>
+              <span id="p1-streak-text" class="text-sm font-extrabold text-teal-400 font-playful">0 / 3 🔥</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- AREA CANVAS UTAMA -->
+        <div class="relative w-full overflow-hidden rounded-2xl bg-slate-950 border-2 border-slate-800 flex items-center justify-center" id="canvas-container">
+          <!-- Canvas Game -->
+          <canvas id="game-canvas" class="block mx-auto max-w-full h-auto cursor-none"></canvas>
+
+          <!-- Stun / Status Overlay Efek -->
+          <div id="stun-p1-overlay" class="hidden absolute top-4 left-4 bg-rose-950/90 border border-rose-500 text-rose-400 px-3 py-1.5 rounded-lg text-xs font-bold animate-bounce">
+            🥶 P1 Terbeku! (Salah Jawab)
+          </div>
+          <div id="stun-p2-overlay" class="hidden absolute top-4 right-4 bg-rose-950/90 border border-rose-500 text-rose-400 px-3 py-1.5 rounded-lg text-xs font-bold animate-bounce">
+            🥶 P2 Terbeku! (Salah Jawab)
+          </div>
+          
+          <!-- Status Ghost Mode -->
+          <div id="ghost-mode-overlay" class="hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-indigo-950/90 border border-indigo-500 text-indigo-300 px-6 py-3 rounded-2xl text-center shadow-2xl pointer-events-none">
+            <span class="block text-sm font-extrabold tracking-widest uppercase animate-pulse">👻 GHOST MODE DIKEMBANGKAN! 👻</span>
+            <span class="text-xs text-slate-400">Ular saling menembus & soal bertukar cepat!</span>
+          </div>
+        </div>
+
+        <!-- KONTROL VIRTUAL SENTUH MOBILE (Hanya muncul jika di deteksi touch device) -->
+        <div id="mobile-controls" class="hidden grid grid-cols-2 gap-4 max-w-md mx-auto pt-2">
+          <!-- Pad Kontrol Kiri / P1 -->
+          <div class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800 flex flex-col items-center">
+            <span class="text-[9px] font-bold text-slate-400 uppercase mb-2">Gerakan Ular</span>
+            <div class="grid grid-cols-3 gap-1.5 w-32">
+              <div></div>
+              <button onclick="handleVirtualDir(1, 'UP')" class="w-10 h-10 bg-slate-800 active:bg-cyan-500 active:text-slate-950 rounded-xl font-bold flex items-center justify-center text-lg shadow-md transition">▲</button>
+              <div></div>
+              <button onclick="handleVirtualDir(1, 'LEFT')" class="w-10 h-10 bg-slate-800 active:bg-cyan-500 active:text-slate-950 rounded-xl font-bold flex items-center justify-center text-lg shadow-md transition">◀</button>
+              <button onclick="handleVirtualDir(1, 'DOWN')" class="w-10 h-10 bg-slate-800 active:bg-cyan-500 active:text-slate-950 rounded-xl font-bold flex items-center justify-center text-lg shadow-md transition">▼</button>
+              <button onclick="handleVirtualDir(1, 'RIGHT')" class="w-10 h-10 bg-slate-800 active:bg-cyan-500 active:text-slate-950 rounded-xl font-bold flex items-center justify-center text-lg shadow-md transition">▶</button>
+            </div>
+          </div>
+          <div class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800 flex flex-col items-center justify-center text-center">
+            <span class="text-xs font-bold text-slate-400">Tips Sentuhan Mobile</span>
+            <p class="text-[10px] text-slate-500 max-w-[150px] mt-1">
+              Kamu juga bisa langsung mengusap (<span class="text-cyan-400">Swipe</span>) layar permainan untuk mengubah arah gerak ular!
+            </p>
+          </div>
+        </div>
+
+        <!-- Tombol Kembali / Pause -->
+        <div class="flex justify-between items-center max-w-md mx-auto pt-2">
+          <button onclick="backToMenu()" class="text-xs font-bold text-slate-400 hover:text-white px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition">
+            ◀ Kembali ke Menu Utama
+          </button>
+          <span class="text-xs text-slate-500 font-semibold italic">Arahkan ular ke jawaban yang tepat!</span>
+        </div>
+      </section>
+
+
+      <!-- ================= LAYAR GAME OVER & EVALUASI BELAJAR ================= -->
+      <section id="game-over-screen" class="hidden space-y-6 relative z-10">
+        
+        <div class="text-center space-y-2">
+          <span class="text-5xl">🏆</span>
+          <h2 class="text-3xl md:text-5xl font-extrabold font-playful tracking-tight text-white">
+            Permainan <span class="text-rose-500">Selesai!</span>
+          </h2>
+          <p id="game-over-verdict" class="text-sm text-slate-400 max-w-md mx-auto">
+            Kerja bagus! Mari kita evaluasi hasil belajarmu hari ini untuk menjadi lebih pintar.
+          </p>
+        </div>
+
+        <!-- RANGKUMAN STATS -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+          <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 text-center">
+            <span class="block text-xs font-bold text-slate-500 uppercase">Skor Akhir</span>
+            <span id="final-score-disp" class="text-2xl font-extrabold text-white font-playful">0</span>
+          </div>
+          <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 text-center">
+            <span class="block text-xs font-bold text-slate-500 uppercase">Jawaban Benar</span>
+            <span id="correct-answers-disp" class="text-2xl font-extrabold text-emerald-400 font-playful">0</span>
+          </div>
+          <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 text-center">
+            <span class="block text-xs font-bold text-slate-500 uppercase">Jawaban Salah</span>
+            <span id="wrong-answers-disp" class="text-2xl font-extrabold text-rose-400 font-playful">0</span>
+          </div>
+          <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 text-center">
+            <span class="block text-xs font-bold text-slate-500 uppercase">Akurasi Matematika</span>
+            <span id="accuracy-disp" class="text-2xl font-extrabold text-cyan-400 font-playful">0%</span>
+          </div>
+        </div>
+
+        <!-- ================= LAPORAN EVALUASI MATEMATIKA ================= -->
+        <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-5 md:p-6 max-w-3xl mx-auto space-y-4 shadow-xl">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <h3 class="text-base md:text-lg font-bold text-slate-200 flex items-center gap-2">
+              <span>📝</span> Laporan & Evaluasi Pembahasan Belajar
+            </h3>
+            <span class="px-3 py-1 rounded-full text-[10px] font-extrabold bg-cyan-950 text-cyan-400 uppercase">Kurikulum SD Kelas 4</span>
+          </div>
+
+          <!-- Daftar Soal Salah dan Pembahasan -->
+          <div id="evaluation-list" class="space-y-4 max-h-[300px] overflow-y-auto pr-2">
+            <!-- Isi Dinamis Melalui JS -->
+          </div>
+
+          <div id="evaluation-empty-msg" class="hidden text-center py-6 space-y-2">
+            <span class="text-3xl">🎯</span>
+            <p class="text-sm font-bold text-emerald-400">Hebat Sekali! Kamu menjawab semua soal dengan 100% Benar!</p>
+            <p class="text-xs text-slate-400">Pertahankan kehebatanmu dan tantang dirimu lagi!</p>
+          </div>
+        </div>
+
+        <!-- TOMBOL AKSI SELESAI GAME OVER -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-md mx-auto pt-4">
+          <button id="restart-game-btn" class="w-full sm:w-1/2 py-3 px-5 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-slate-950 font-extrabold font-playful text-base tracking-wide transition transform hover:-translate-y-0.5 active:translate-y-0">
+            🔄 Main Lagi
+          </button>
+          <button onclick="backToMenu()" class="w-full sm:w-1/2 py-3 px-5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white font-extrabold text-base tracking-wide border border-slate-800 hover:border-slate-700 transition">
+            🏠 Menu Utama
+          </button>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="w-full text-center py-4 border-t border-slate-900 bg-slate-950/60">
+    <p class="text-xs text-slate-500 font-semibold tracking-wide">
+      Math Snake: Petualangan Angka &copy; 2026. Didesain secara premium untuk anak-anak cerdas Indonesia.
+    </p>
+  </footer>
+
+  <!-- ================= LOGIKA GAME JAVASCRIPT ================= -->
+  <script>
+    // --- SYNTHESIZED SOUNDS (Web Audio API) ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let isSoundOn = true;
+
+    function playSynthSound(type) {
+      if (!isSoundOn) return;
+      
+      // Pastikan audioCtx berjalan (kebijakan interaksi peramban)
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      const osc = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      osc.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      const now = audioCtx.currentTime;
+
+      if (type === 'correct') {
+        // Cring! - Nada ceria naik
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(440, now); // A4
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.15); // A5
+        gainNode.gain.setValueAtTime(0.15, now);
+        gainNode.gain.linearRampToValueAtTime(0.01, now + 0.2);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      } 
+      else if (type === 'wrong') {
+        // Oops! - Nada berat meluncur ke bawah
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.linearRampToValueAtTime(110, now + 0.25);
+        gainNode.gain.setValueAtTime(0.2, now);
+        gainNode.gain.linearRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } 
+      else if (type === 'combo') {
+        // Nada perayaan Combo Mode berkilau
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, now); // C5
+        osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+        osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+        osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.3); // C6
+        gainNode.gain.setValueAtTime(0.15, now);
+        gainNode.gain.linearRampToValueAtTime(0.01, now + 0.45);
+        osc.start(now);
+        osc.stop(now + 0.45);
+      } 
+      else if (type === 'crash') {
+        // Bunyi Ledakan/Tabrakan Frekuensi Rendah
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.exponentialRampToValueAtTime(40, now + 0.4);
+        gainNode.gain.setValueAtTime(0.25, now);
+        gainNode.gain.linearRampToValueAtTime(0.01, now + 0.5);
+        osc.start(now);
+        osc.stop(now + 0.5);
+      }
+      else if (type === 'stun') {
+        // Nada getar pembekuan
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(300, now);
+        for(let i = 0; i < 0.3; i += 0.05) {
+          osc.frequency.setValueAtTime(300 + (i % 0.1 === 0 ? 50 : -50), now + i);
+        }
+        gainNode.gain.setValueAtTime(0.15, now);
+        gainNode.gain.linearRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      }
+    }
+
+    // Toggle Kontrol Suara
+    const audioToggleBtn = document.getElementById('audio-toggle-btn');
+    const audioIcon = document.getElementById('audio-icon');
+    const audioStatus = document.getElementById('audio-status');
+    audioToggleBtn.addEventListener('click', () => {
+      isSoundOn = !isSoundOn;
+      if (isSoundOn) {
+        audioIcon.textContent = '🔊';
+        audioStatus.textContent = 'Suara: Aktif';
+        audioToggleBtn.classList.remove('bg-rose-950/80', 'text-rose-400', 'border-rose-800');
+        audioToggleBtn.classList.add('bg-slate-800/80', 'text-slate-300', 'border-slate-700');
+      } else {
+        audioIcon.textContent = '🔇';
+        audioStatus.textContent = 'Suara: Senyap';
+        audioToggleBtn.classList.remove('bg-slate-800/80', 'text-slate-300', 'border-slate-700');
+        audioToggleBtn.classList.add('bg-rose-950/80', 'text-rose-400', 'border-rose-800');
+      }
+    });
+
+
+    // --- KUSTOMISASI WARNA ULAR ---
+    let configSnakeP1 = { color: '#10b981', glow: '#34d399' };
+    let configSnakeP2 = { color: '#a855f7', glow: '#c084fc' };
+
+    function setSnakeColor(playerNum, color, glow) {
+      if (playerNum === 1) {
+        configSnakeP1 = { color, glow };
+        document.querySelectorAll('.color-btn-1').forEach(btn => btn.classList.replace('border-emerald-400', 'border-transparent'));
+        event.currentTarget.classList.replace('border-transparent', 'border-emerald-400');
+      } else {
+        configSnakeP2 = { color, glow };
+        document.querySelectorAll('.color-btn-2').forEach(btn => btn.classList.replace('border-purple-400', 'border-transparent'));
+        event.currentTarget.classList.replace('border-transparent', 'border-purple-400');
+      }
+      playSynthSound('correct');
+    }
+
+
+    // --- KONFIGURASI ENGINE PERMAINAN ---
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Grid Setup (Lebar area permainan fleksibel & pas)
+    const gridSize = 20;
+    const tileCountX = 40; // Total horizontal tiles
+    const tileCountY = 25; // Total vertical tiles
+    
+    // Canvas dimensions
+    canvas.width = tileCountX * gridSize; // 800px
+    canvas.height = tileCountY * gridSize; // 500px
+
+    let gameMode = 1; // 1 = 1 Player, 2 = 2 Player Versus
+    let isGameRunning = false;
+    let gameInterval = null;
+    let baseSpeed = 140; // milidetik per frame lompatan (lebih kecil = lebih cepat)
+    let currentSpeed = baseSpeed;
+
+    // Data Statistik Sesi Aktif
+    let scoreP1 = 0;
+    let scoreP2 = 0;
+    let livesP1 = 3;
+    let livesP2 = 3;
+    let p1CorrectStreak = 0;
+
+    // Evaluasi data belajar
+    let sessionQuestions = []; // Menyimpan log interaksi soal untuk dianalisis
+
+    // Combo Emas (Khusus Mode 1 Player)
+    let isComboActive = false;
+    let comboTimer = 0; // dalam detik
+    let comboInterval = null;
+
+    // Ghost Mode (Khusus Mode 2 Player)
+    let isGhostMode = false;
+    let ghostModeTimer = 0;
+
+    // Stun status
+    let p1Stunned = false;
+    let p1StunTime = 0;
+    let p2Stunned = false;
+    let p2StunTime = 0;
+
+    // Objek Ular
+    let snakeP1 = [];
+    let snakeP2 = [];
+    let dirP1 = { x: 1, y: 0 };
+    let dirP2 = { x: -1, y: 0 };
+    let nextDirP1 = { x: 1, y: 0 };
+    let nextDirP2 = { x: -1, y: 0 };
+
+    // Soal Matematika dan Buah Makanan Aktif
+    let currentQuestion = null;
+    let apples = []; // Daftar apel berisi jawaban angka di layar
+
+
+    // --- SISTEM GENERASI SOAL MATEMATIKA ---
+    // Kurikulum Matematika SD Kelas 4 SD (Kabataku & Soal Menantang)
+    function generateQuestion(isCombo = false) {
+      const operations = ['+', '-', '*', '/'];
+      let op = operations[Math.floor(Math.random() * operations.length)];
+      
+      // Jika mode Combo diaktifkan, paksa soal campuran kabataku yang lebih menantang
+      if (isCombo) {
+        op = ['*', '/', 'KABATAKU_CAMPURAN'][Math.floor(Math.random() * 3)];
+      }
+
+      let num1, num2, num3, questionText, correctAnswer;
+
+      if (op === '+') {
+        num1 = Math.floor(Math.random() * 80) + 20; // 20 - 99
+        num2 = Math.floor(Math.random() * 80) + 10; 
+        questionText = `${num1} + ${num2}`;
+        correctAnswer = num1 + num2;
+      } 
+      else if (op === '-') {
+        num1 = Math.floor(Math.random() * 90) + 20;
+        num2 = Math.floor(Math.random() * (num1 - 5)) + 5; // cegah hasil negatif
+        questionText = `${num1} - ${num2}`;
+        correctAnswer = num1 - num2;
+      } 
+      else if (op === '*') {
+        num1 = Math.floor(Math.random() * 12) + 2; // perkalian dasar sd kelas 4
+        num2 = Math.floor(Math.random() * 12) + 2;
+        questionText = `${num1} × ${num2}`;
+        correctAnswer = num1 * num2;
+      } 
+      else if (op === '/') {
+        num2 = Math.floor(Math.random() * 9) + 2;
+        correctAnswer = Math.floor(Math.random() * 10) + 2;
+        num1 = num2 * correctAnswer; // Menjamin pembagian habis tanpa sisa desimal
+        questionText = `${num1} ÷ ${num2}`;
+      }
+      else {
+        // Campuran KABATAKU: num1 * num2 + num3
+        num1 = Math.floor(Math.random() * 5) + 2;
+        num2 = Math.floor(Math.random() * 5) + 2;
+        num3 = Math.floor(Math.random() * 15) + 5;
+        questionText = `(${num1} × ${num2}) + ${num3}`;
+        correctAnswer = (num1 * num2) + num3;
+      }
+
+      // Generate Jawaban Salah (Distractor) yang masuk akal secara matematis
+      const wrongAnswers = new Set();
+      while (wrongAnswers.size < 2) {
+        const diff = (Math.floor(Math.random() * 5) + 1) * (Math.random() < 0.5 ? 1 : -1);
+        const wrongVal = correctAnswer + diff;
+        if (wrongVal !== correctAnswer && wrongVal > 0) {
+          wrongAnswers.add(wrongVal);
+        }
+      }
+
+      return {
+        text: questionText,
+        answer: correctAnswer,
+        options: [correctAnswer, ...Array.from(wrongAnswers)].sort(() => Math.random() - 0.5)
+      };
+    }
+
+    // Spawn 3 buah apel dengan posisi acak aman & bernilai opsi jawaban
+    function spawnApples() {
+      apples = [];
+      const usedPositions = new Set();
+
+      // Tambahkan posisi tubuh ular P1 agar apel tidak bertumpukan di ular
+      snakeP1.forEach(p => usedPositions.add(`${p.x},${p.y}`));
+      snakeP2.forEach(p => usedPositions.add(`${p.x},${p.y}`));
+
+      currentQuestion.options.forEach((ans, index) => {
+        let x, y;
+        let tries = 0;
+        
+        // Cari posisi acak yang aman
+        do {
+          x = Math.floor(Math.random() * (tileCountX - 4)) + 2;
+          y = Math.floor(Math.random() * (tileCountY - 4)) + 2;
+          tries++;
+        } while (usedPositions.has(`${x},${y}`) && tries < 100);
+
+        usedPositions.add(`${x},${y}`);
+
+        apples.push({
+          x: x,
+          y: y,
+          value: ans,
+          isCorrect: ans === currentQuestion.answer,
+          color: ans === currentQuestion.answer ? '#10b981' : '#f43f5e', // Hijau jika benar, Merah jika salah
+          radius: gridSize / 2
+        });
+      });
+    }
+
+
+    // --- INSTANSISASI ULAR ---
+    function initSnakes() {
+      // Ular 1 (Mulai dari Kiri, bergerak ke kanan)
+      snakeP1 = [
+        { x: 10, y: 12 },
+        { x: 9, y: 12 },
+        { x: 8, y: 12 }
+      ];
+      dirP1 = { x: 1, y: 0 };
+      nextDirP1 = { x: 1, y: 0 };
+
+      // Ular 2 (Mulai dari Kanan, bergerak ke kiri)
+      if (gameMode === 2) {
+        snakeP2 = [
+          { x: 30, y: 12 },
+          { x: 31, y: 12 },
+          { x: 32, y: 12 }
+        ];
+        dirP2 = { x: -1, y: 0 };
+        nextDirP2 = { x: -1, y: 0 };
+      } else {
+        snakeP2 = [];
+      }
+    }
+
+
+    // --- KONTROL KEYBOARD & SENTUHAN ---
+    window.addEventListener('keydown', e => {
+      if (!isGameRunning) return;
+
+      // Cegah scrolling halaman dengan tombol panah/spasi saat sedang bermain game
+      if(["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) > -1) {
+        e.preventDefault();
+      }
+
+      // Kendali Pemain 1 (W, A, S, D) - Hanya berbalik 90 derajat saja
+      if (!p1Stunned) {
+        if (e.key.toLowerCase() === 'w' && dirP1.y === 0) nextDirP1 = { x: 0, y: -1 };
+        if (e.key.toLowerCase() === 's' && dirP1.y === 0) nextDirP1 = { x: 0, y: 1 };
+        if (e.key.toLowerCase() === 'a' && dirP1.x === 0) nextDirP1 = { x: -1, y: 0 };
+        if (e.key.toLowerCase() === 'd' && dirP1.x === 0) nextDirP1 = { x: 1, y: 0 };
+      }
+
+      // Kendali Pemain 2 (Tombol Panah)
+      if (gameMode === 2 && !p2Stunned) {
+        if (e.key === 'ArrowUp' && dirP2.y === 0) nextDirP2 = { x: 0, y: -1 };
+        if (e.key === 'ArrowDown' && dirP2.y === 0) nextDirP2 = { x: 0, y: 1 };
+        if (e.key === 'ArrowLeft' && dirP2.x === 0) nextDirP2 = { x: -1, y: 0 };
+        if (e.key === 'ArrowRight' && dirP2.x === 0) nextDirP2 = { x: 1, y: 0 };
+      }
+    });
+
+    // Kontrol Virtual Pilihan Tombol Layar Sentuh
+    function handleVirtualDir(playerNum, direction) {
+      if (!isGameRunning) return;
+      
+      if (playerNum === 1 && !p1Stunned) {
+        if (direction === 'UP' && dirP1.y === 0) nextDirP1 = { x: 0, y: -1 };
+        if (direction === 'DOWN' && dirP1.y === 0) nextDirP1 = { x: 0, y: 1 };
+        if (direction === 'LEFT' && dirP1.x === 0) nextDirP1 = { x: -1, y: 0 };
+        if (direction === 'RIGHT' && dirP1.x === 0) nextDirP1 = { x: 1, y: 0 };
+      }
+    }
+
+    // Deteksi Gestur Geser (Swipe) Layar untuk Perangkat Mobile
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    canvas.addEventListener('touchstart', e => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    canvas.addEventListener('touchend', e => {
+      if (!isGameRunning || p1Stunned) return;
+
+      const diffX = e.changedTouches[0].clientX - touchStartX;
+      const diffY = e.changedTouches[0].clientY - touchStartY;
+      const threshold = 30; // sensitivitas geseran dalam piksel
+
+      if (Math.abs(diffX) > Math.abs(diffY)) {
+        // Horisontal swipe
+        if (Math.abs(diffX) > threshold) {
+          if (diffX > 0 && dirP1.x === 0) nextDirP1 = { x: 1, y: 0 }; // Kanan
+          else if (diffX < 0 && dirP1.x === 0) nextDirP1 = { x: -1, y: 0 }; // Kiri
+        }
+      } else {
+        // Vertikal swipe
+        if (Math.abs(diffY) > threshold) {
+          if (diffY > 0 && dirP1.y === 0) nextDirP1 = { x: 0, y: 1 }; // Bawah
+          else if (diffY < 0 && dirP1.y === 0) nextDirP1 = { x: 0, y: -1 }; // Atas
+        }
+      }
+    }, { passive: true });
+
+
+    // --- EVENT PENANGANAN STUN (DIPEKUKAN) ---
+    function triggerStun(playerNum) {
+      playSynthSound('stun');
+      if (playerNum === 1) {
+        p1Stunned = true;
+        p1StunTime = 3; // 3 detik stun
+        document.getElementById('stun-p1-overlay').classList.remove('hidden');
+      } else {
+        p2Stunned = true;
+        p2StunTime = 3;
+        document.getElementById('stun-p2-overlay').classList.remove('hidden');
+      }
+    }
+
+
+    // --- AKTIVASI MODE COMBO EMAS (1P ONLY) ---
+    function activateGoldCombo() {
+      if (isComboActive) return;
+      isComboActive = true;
+      comboTimer = 15; // Berlangsung selama 15 detik
+      playSynthSound('combo');
+
+      document.getElementById('combo-timer-container').classList.remove('hidden');
+      document.getElementById('combo-time-text').textContent = comboTimer + "s";
+
+      // Berubah seketika menjadi soal KABATAKU menantang
+      currentQuestion = generateQuestion(true);
+      spawnApples();
+
+      // Buat hitung mundur Combo
+      comboInterval = setInterval(() => {
+        comboTimer--;
+        document.getElementById('combo-time-text').textContent = comboTimer + "s";
+
+        if (comboTimer <= 0) {
+          deactivateGoldCombo();
+        }
+      }, 1000);
+    }
+
+    function deactivateGoldCombo() {
+      isComboActive = false;
+      clearInterval(comboInterval);
+      document.getElementById('combo-timer-container').classList.add('hidden');
+      
+      // Kembalikan ke soal normal
+      currentQuestion = generateQuestion(false);
+      spawnApples();
+    }
+
+
+    // --- PERSIAPAN MULAI PERMAINAN ---
+    function startGame(mode) {
+      gameMode = mode;
+      isGameRunning = true;
+      scoreP1 = 0;
+      scoreP2 = 0;
+      livesP1 = 3;
+      livesP2 = 3;
+      p1CorrectStreak = 0;
+      currentSpeed = baseSpeed;
+      p1Stunned = false;
+      p2Stunned = false;
+      isComboActive = false;
+      isGhostMode = false;
+      sessionQuestions = [];
+
+      // Sembunyikan Overlay Stun
+      document.getElementById('stun-p1-overlay').classList.add('hidden');
+      document.getElementById('stun-p2-overlay').classList.add('hidden');
+      document.getElementById('ghost-mode-overlay').classList.add('hidden');
+
+      // Tampilkan UI Sesuai Mode
+      document.getElementById('menu-screen').classList.add('hidden');
+      document.getElementById('game-over-screen').classList.add('hidden');
+      document.getElementById('game-screen').classList.remove('hidden');
+
+      // Penyesuaian HUD P1 & P2
+      if (gameMode === 1) {
+        document.getElementById('p2-hud-container').classList.add('hidden');
+        document.getElementById('p1-streak-hud-container').classList.remove('hidden');
+        document.getElementById('p1-title-hud').textContent = "PEMAIN 1";
+      } else {
+        document.getElementById('p2-hud-container').classList.remove('hidden');
+        document.getElementById('p1-streak-hud-container').classList.add('hidden');
+        document.getElementById('p1-title-hud').textContent = "P1 (WASD)";
+        document.getElementById('p2-title-hud').textContent = "P2 (PANAH)";
+        
+        // Pemicu Ghost Mode acak setelah interval waktu
+        triggerGhostModeCycle();
+      }
+
+      // Deteksi Perangkat Sentuh untuk Tampilkan Kontrol Virtual Layar
+      if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+        document.getElementById('mobile-controls').classList.remove('hidden');
+      } else {
+        document.getElementById('mobile-controls').classList.add('hidden');
+      }
+
+      // Buat Soal Pertama
+      currentQuestion = generateQuestion(false);
+      
+      // Instansiasi Posisi Awal Ular & Apel Makanan
+      initSnakes();
+      spawnApples();
+
+      updateHUD();
+
+      // Jalankan Game Loop interval dinamis
+      runGameLoop();
+    }
+
+
+    // --- KENDALI INTERVAL GAME LOOP ---
+    function runGameLoop() {
+      if (gameInterval) clearInterval(gameInterval);
+      gameInterval = setInterval(update, currentSpeed);
+    }
+
+
+    // --- SIKLUS DETEKSI GHOST MODE (2 PLAYER VERSUS) ---
+    let ghostCycleInterval = null;
+    function triggerGhostModeCycle() {
+      if (ghostCycleInterval) clearInterval(ghostCycleInterval);
+      
+      ghostCycleInterval = setInterval(() => {
+        if (!isGameRunning || gameMode !== 2) return;
+        
+        // Peluang acak 30% memicu Ghost Mode di Versus setiap 12 detik
+        if (Math.random() < 0.35 && !isGhostMode) {
+          isGhostMode = true;
+          document.getElementById('ghost-mode-overlay').classList.remove('hidden');
+          playSynthSound('combo');
+
+          // Ghost mode bertahan selama 7 detik saja
+          setTimeout(() => {
+            isGhostMode = false;
+            document.getElementById('ghost-mode-overlay').classList.add('hidden');
+          }, 7000);
+        }
+      }, 12000);
+    }
+
+
+    // --- UPDATE GAME OVERALL STATE ---
+    function update() {
+      if (!isGameRunning) return;
+
+      // Update Arah Ular Berdasarkan Antrian Kontrol Keyboard/Layar
+      dirP1 = nextDirP1;
+      if (gameMode === 2) {
+        dirP2 = nextDirP2;
+      }
+
+      // --- LOGIKA PERGERAKAN ULAR PEMAIN 1 ---
+      if (!p1Stunned) {
+        const headP1 = { x: snakeP1[0].x + dirP1.x, y: snakeP1[0].y + dirP1.y };
+
+        // Tembus dinding batas layar permainan (Ular keluar kanan muncul di kiri)
+        if (headP1.x < 0) headP1.x = tileCountX - 1;
+        if (headP1.x >= tileCountX) headP1.x = 0;
+        if (headP1.y < 0) headP1.y = tileCountY - 1;
+        if (headP1.y >= tileCountY) headP1.y = 0;
+
+        // Tambah kepala baru ular P1 di baris depan
+        snakeP1.unshift(headP1);
+
+        // Periksa jika memakan buah apel makanan
+        let ateAppleP1 = false;
+        for (let i = 0; i < apples.length; i++) {
+          if (headP1.x === apples[i].x && headP1.y === apples[i].y) {
+            handleEatApple(1, apples[i]);
+            ateAppleP1 = true;
+            break;
+          }
+        }
+
+        // Jika tidak memakan apel makanan, potong ekor ular belakang agar ular tetap konstan
+        if (!ateAppleP1) {
+          snakeP1.pop();
+        }
+      } else {
+        // Kurangi waktu durasi stun P1
+        p1StunTime -= (currentSpeed / 1000);
+        if (p1StunTime <= 0) {
+          p1Stunned = false;
+          document.getElementById('stun-p1-overlay').classList.add('hidden');
+        }
+      }
+
+
+      // --- LOGIKA PERGERAKAN ULAR PEMAIN 2 (Jika Mode 2P Aktif) ---
+      if (gameMode === 2) {
+        if (!p2Stunned) {
+          const headP2 = { x: snakeP2[0].x + dirP2.x, y: snakeP2[0].y + dirP2.y };
+
+          // Tembus dinding batas layar permainan
+          if (headP2.x < 0) headP2.x = tileCountX - 1;
+          if (headP2.x >= tileCountX) headP2.x = 0;
+          if (headP2.y < 0) headP2.y = tileCountY - 1;
+          if (headP2.y >= tileCountY) headP2.y = 0;
+
+          snakeP2.unshift(headP2);
+
+          let ateAppleP2 = false;
+          for (let i = 0; i < apples.length; i++) {
+            if (headP2.x === apples[i].x && headP2.y === apples[i].y) {
+              handleEatApple(2, apples[i]);
+              ateAppleP2 = true;
+              break;
+            }
+          }
+
+          if (!ateAppleP2) {
+            snakeP2.pop();
+          }
+        } else {
+          // Kurangi waktu durasi stun P2
+          p2StunTime -= (currentSpeed / 1000);
+          if (p2StunTime <= 0) {
+            p2Stunned = false;
+            document.getElementById('stun-p2-overlay').classList.add('hidden');
+          }
+        }
+      }
+
+
+      // --- DETEKSI TABRAKAN SABOTASE / ATURAN MATI ---
+      checkCollisions();
+
+      // Render grafis visual semua elemen game
+      draw();
+    }
+
+
+    // --- PROSES KETIKA ULAR MEMAKAN JAWABAN MATEMATIKA ---
+    function handleEatApple(playerNum, apple) {
+      const isCorrect = apple.isCorrect;
+
+      // Rekam Log Pertanyaan untuk Evaluasi Pembahasan Akhir
+      sessionQuestions.push({
+        question: currentQuestion.text,
+        correctAnswer: currentQuestion.answer,
+        chosenAnswer: apple.value,
+        isCorrect: isCorrect,
+        player: playerNum
+      });
+
+      if (isCorrect) {
+        playSynthSound('correct');
+        
+        // Penambahan Poin & Aturan Progresif
+        if (playerNum === 1) {
+          // Jika combo sedang aktif, Apel Emas bernilai tinggi 50 Poin!
+          const earned = isComboActive ? 50 : 15;
+          scoreP1 += earned;
+          p1CorrectStreak++;
+
+          // Pemicu Kecepatan Bertahap setiap kelipatan 5 jawaban benar
+          if (p1CorrectStreak % 5 === 0) {
+            currentSpeed = Math.max(70, currentSpeed - 12); // Batas aman kecepatan tercepat ular
+            runGameLoop();
+          }
+
+          // Picu Combo Mode Emas jika berhasil menjawab 3x beruntun
+          if (p1CorrectStreak >= 3 && !isComboActive) {
+            activateGoldCombo();
+          }
+        } else {
+          scoreP2 += 15;
+          // P2 makan apel benar tidak picu combo (fokus 1P)
+        }
+
+        // Buat soal matematika & makanan segar baru
+        currentQuestion = generateQuestion(isComboActive);
+        spawnApples();
+      } 
+      else {
+        // REAKSI MEMAKAN JAWABAN YANG SALAH (Hukuman Nyawa / Stun)
+        playSynthSound('wrong');
+
+        if (gameMode === 1) {
+          // Mode 1 Player langsung potong nyawa jika salah
+          livesP1--;
+          p1CorrectStreak = 0; // Reset streak beruntun
+          
+          if (isComboActive) {
+            deactivateGoldCombo(); // Batalkan status combo jika salah jawab
+          }
+
+          if (livesP1 <= 0) {
+            gameOver();
+            return;
+          }
+
+          // Segarkan soal baru
+          currentQuestion = generateQuestion(false);
+          spawnApples();
+        } 
+        else {
+          // Mode Versus 2 Player: Pemakan jawaban salah akan membeku (Stun) 3 detik!
+          triggerStun(playerNum);
+          
+          // Kurangi 10 poin atas kecerobohan
+          if (playerNum === 1) scoreP1 = Math.max(0, scoreP1 - 10);
+          else scoreP2 = Math.max(0, scoreP2 - 10);
+        }
+      }
+
+      updateHUD();
+    }
+
+
+    // --- PENGECEKAN TABRAKAN FISIK ULAR ---
+    function checkCollisions() {
+      if (isGhostMode) return; // Lewati tabrakan fisik jika sedang Ghost Mode aktif
+
+      const headP1 = snakeP1[0];
+
+      // Tabrak ekor sendiri (P1)
+      for (let i = 1; i < snakeP1.length; i++) {
+        if (headP1.x === snakeP1[i].x && headP1.y === snakeP1[i].y) {
+          playSynthSound('crash');
+          livesP1--;
+          p1CorrectStreak = 0;
+          if (livesP1 <= 0) {
+            gameOver();
+            return;
+          }
+          initSnakes();
+          updateHUD();
+          return;
+        }
+      }
+
+      if (gameMode === 2) {
+        const headP2 = snakeP2[0];
+
+        // Tabrak ekor sendiri (P2)
+        for (let i = 1; i < snakeP2.length; i++) {
+          if (headP2.x === snakeP2[i].x && headP2.y === snakeP2[i].y) {
+            playSynthSound('crash');
+            livesP2--;
+            if (livesP2 <= 0) {
+              gameOver();
+              return;
+            }
+            initSnakes();
+            updateHUD();
+            return;
+          }
+        }
+
+        // Tabrakan Sabotase antar Kepala / Badan Ular (Pemain 1 vs Pemain 2)
+        // 1. Kepala P1 menabrak Tubuh P2
+        for (let i = 0; i < snakeP2.length; i++) {
+          if (headP1.x === snakeP2[i].x && headP1.y === snakeP2[i].y) {
+            playSynthSound('crash');
+            livesP1--;
+            // Hukuman sabotase poin ditransfer ke P2 sebagai insentif bertahan!
+            scoreP1 = Math.max(0, scoreP1 - 15);
+            scoreP2 += 10;
+            if (livesP1 <= 0) {
+              gameOver();
+              return;
+            }
+            initSnakes();
+            updateHUD();
+            return;
+          }
+        }
+
+        // 2. Kepala P2 menabrak Tubuh P1
+        for (let i = 0; i < snakeP1.length; i++) {
+          if (headP2.x === snakeP1[i].x && headP2.y === snakeP1[i].y) {
+            playSynthSound('crash');
+            livesP2--;
+            scoreP2 = Math.max(0, scoreP2 - 15);
+            scoreP1 += 10;
+            if (livesP2 <= 0) {
+              gameOver();
+              return;
+            }
+            initSnakes();
+            updateHUD();
+            return;
+          }
+        }
+      }
+    }
+
+
+    // --- DESAIN ELEMEN VISUAL CANVAS 2D ---
+    function draw() {
+      // 1. Bersihkan Canvas dengan latar belakang bergradasi gelap premium
+      ctx.fillStyle = '#090d16';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Gambar Garis Kotak Grid Halus Estetik
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 0.5;
+      for (let i = 0; i < tileCountX; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * gridSize, 0);
+        ctx.lineTo(i * gridSize, canvas.height);
+        ctx.stroke();
+      }
+      for (let j = 0; j < tileCountY; j++) {
+        ctx.beginPath();
+        ctx.moveTo(0, j * gridSize);
+        ctx.lineTo(canvas.width, j * gridSize);
+        ctx.stroke();
+      }
+
+      // Efek Layar Emas jika Combo Emas Sedang Aktif (1P)
+      if (isComboActive) {
+        ctx.strokeStyle = 'rgba(234, 179, 8, 0.4)';
+        ctx.lineWidth = 6;
+        ctx.strokeRect(0, 0, canvas.width, canvas.height);
+      }
+
+      // 2. RENDERING BUAH APEL MAKANAN JAWABAN
+      apples.forEach(apple => {
+        const centerX = apple.x * gridSize + gridSize / 2;
+        const centerY = apple.y * gridSize + gridSize / 2;
+
+        // Efek Cahaya Pendaran (Glow) Neon
+        ctx.shadowBlur = 15;
+        // Jika Combo Emas Aktif, Semua Apel Menjadi Apel Emas Berkilau!
+        if (isComboActive) {
+          ctx.fillStyle = '#eab308'; // Emas
+          ctx.shadowColor = '#fbbf24';
+        } else {
+          ctx.fillStyle = apple.color;
+          ctx.shadowColor = apple.color;
+        }
+
+        // Gambar apel bulat utuh
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, apple.radius - 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Tambah tangkai daun apel
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#10b981';
+        ctx.fillRect(centerX - 1, centerY - apple.radius, 2, 4);
+
+        // Render Teks Jawaban Angka Di Dalam Buah Apel
+        ctx.fillStyle = '#0f172a'; // Teks Gelap Terbaca Kontras
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(apple.value, centerX, centerY);
+      });
+
+      // 3. RENDERING ULAR PEMAIN 1 (EMERALD / CUSTOM COLOR)
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = configSnakeP1.glow;
+      snakeP1.forEach((part, index) => {
+        const isHead = index === 0;
+        ctx.fillStyle = isHead ? configSnakeP1.glow : configSnakeP1.color;
+        
+        // Bentuk bulat tumpul yang halus
+        ctx.beginPath();
+        ctx.arc(part.x * gridSize + gridSize/2, part.y * gridSize + gridSize/2, (gridSize/2) - (isHead ? 0 : 2), 0, Math.PI * 2);
+        ctx.fill();
+
+        // Mata Ular pada Kepala
+        if (isHead) {
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(part.x * gridSize + gridSize/2 - 3, part.y * gridSize + gridSize/2 - 3, 2.5, 0, Math.PI * 2);
+          ctx.arc(part.x * gridSize + gridSize/2 + 3, part.y * gridSize + gridSize/2 - 3, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+
+      // 4. RENDERING ULAR PEMAIN 2 (PURPLE / CUSTOM COLOR)
+      if (gameMode === 2) {
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = configSnakeP2.glow;
+        snakeP2.forEach((part, index) => {
+          const isHead = index === 0;
+          ctx.fillStyle = isHead ? configSnakeP2.glow : configSnakeP2.color;
+
+          ctx.beginPath();
+          ctx.arc(part.x * gridSize + gridSize/2, part.y * gridSize + gridSize/2, (gridSize/2) - (isHead ? 0 : 2), 0, Math.PI * 2);
+          ctx.fill();
+
+          if (isHead) {
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(part.x * gridSize + gridSize/2 - 3, part.y * gridSize + gridSize/2 - 3, 2.5, 0, Math.PI * 2);
+            ctx.arc(part.x * gridSize + gridSize/2 + 3, part.y * gridSize + gridSize/2 - 3, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        });
+      }
+
+      // Reset Efek Cahaya Shadow agar tidak membebani komputasi
+      ctx.shadowBlur = 0;
+    }
+
+
+    // --- SYNC DATA HUD STATISTIK ---
+    function updateHUD() {
+      // Perbarui Teks Pertanyaan Aktif
+      document.getElementById('math-question').textContent = currentQuestion.text;
+
+      // Update P1 HUD
+      document.getElementById('p1-score-hud').textContent = `Skor: ${scoreP1}`;
+      document.getElementById('p1-hearts-hud').textContent = '❤️'.repeat(livesP1);
+      
+      if (gameMode === 1) {
+        document.getElementById('p1-streak-text').textContent = `${p1CorrectStreak % 3} / 3 🔥`;
+      }
+
+      // Update P2 HUD (Versus)
+      if (gameMode === 2) {
+        document.getElementById('p2-score-hud').textContent = `Skor: ${scoreP2}`;
+        document.getElementById('p2-hearts-hud').textContent = '❤️'.repeat(livesP2);
+      }
+    }
+
+
+    // --- SELESAI GAME OVER ---
+    function gameOver() {
+      isGameRunning = false;
+      clearInterval(gameInterval);
+      if (ghostCycleInterval) clearInterval(ghostCycleInterval);
+      if (comboInterval) clearInterval(comboInterval);
+
+      // Simpan Rekor Papan Skor Tertinggi ke LocalStorage
+      const storedHighScore = localStorage.getItem('math_snake_highscore') || 0;
+      const storedMaxLength = localStorage.getItem('math_snake_max_length') || 0;
+      
+      const p1FinalScore = scoreP1;
+      const p1Length = snakeP1.length;
+
+      if (p1FinalScore > storedHighScore) {
+        localStorage.setItem('math_snake_highscore', p1FinalScore);
+      }
+      if (p1Length > storedMaxLength) {
+        localStorage.setItem('math_snake_max_length', p1Length);
+      }
+
+      // Perbarui Teks Tampilan Beranda Menu Utama
+      loadHighScores();
+
+      // Alihkan Layar ke Evaluasi Belajar Game Over
+      document.getElementById('game-screen').classList.add('hidden');
+      document.getElementById('game-over-screen').classList.remove('hidden');
+
+      // Tentukan teks vonis kemenangan
+      const verdictText = document.getElementById('game-over-verdict');
+      const finalScoreDisp = document.getElementById('final-score-disp');
+
+      if (gameMode === 1) {
+        verdictText.textContent = `Hebat! Kamu berhasil mengumpulkan total ${scoreP1} Poin. Teruskan belajarmu!`;
+        finalScoreDisp.textContent = scoreP1;
+      } else {
+        let winnerText = "";
+        if (livesP1 <= 0 && livesP2 <= 0) winnerText = "Kedua ular tumbang! Seri!";
+        else if (livesP1 <= 0) winnerText = "Pemain 2 (Ungu) Menang! Pemain 1 Tumbang.";
+        else if (livesP2 <= 0) winnerText = "Pemain 1 (Hijau) Menang! Pemain 2 Tumbang.";
+        else {
+          if (scoreP1 > scoreP2) winnerText = "Pemain 1 Menang Skor Tertinggi!";
+          else if (scoreP2 > scoreP1) winnerText = "Pemain 2 Menang Skor Tertinggi!";
+          else winnerText = "Skor Sama Kuat! Hasil Seri.";
+        }
+        verdictText.textContent = winnerText;
+        finalScoreDisp.textContent = `${scoreP1} vs ${scoreP2}`;
+      }
+
+      // Bangun Laporan Evaluasi Belajar Matematika SD Kelas 4
+      buildEvaluationReport();
+
+      // Tambahkan listener khusus tombol restart game over agar dinamis langsung jalan
+      document.getElementById('restart-game-btn').onclick = () => startGame(gameMode);
+    }
+
+
+    // --- EVALUASI BELAJAR PASCA-GAME (FITUR UTAMA) ---
+    function buildEvaluationReport() {
+      const evaluationList = document.getElementById('evaluation-list');
+      const emptyMsg = document.getElementById('evaluation-empty-msg');
+      
+      evaluationList.innerHTML = ''; // Kosongkan kontainer
+      
+      const totalAnswers = sessionQuestions.length;
+      const correctAnswers = sessionQuestions.filter(q => q.isCorrect).length;
+      const wrongAnswers = totalAnswers - correctAnswers;
+      const accuracy = totalAnswers > 0 ? Math.round((correctAnswers / totalAnswers) * 100) : 0;
+
+      // Isi Info Stats
+      document.getElementById('correct-answers-disp').textContent = correctAnswers;
+      document.getElementById('wrong-answers-disp').textContent = wrongAnswers;
+      document.getElementById('accuracy-disp').textContent = accuracy + "%";
+
+      // Saring daftar pertanyaan yang dijawab salah
+      const wrongQuestionsLog = sessionQuestions.filter(q => !q.isCorrect);
+
+      if (wrongQuestionsLog.length === 0) {
+        if (totalAnswers > 0) {
+          emptyMsg.classList.remove('hidden');
+        } else {
+          // Tidak ada soal yang dimakan sama sekali sebelum mati tabrakan
+          emptyMsg.classList.add('hidden');
+          evaluationList.innerHTML = `
+            <div class="text-center py-6 text-slate-500 text-sm">
+              Kamu belum sempat menjawab soal apapun. Ayo coba hindari rintangan lebih baik di kesempatan berikutnya!
+            </div>
+          `;
+        }
+        return;
+      }
+
+      emptyMsg.classList.add('hidden');
+
+      // Tampilkan pembahasan langkah demi langkah untuk setiap kesalahan anak
+      wrongQuestionsLog.forEach((log, index) => {
+        const item = document.createElement('div');
+        item.className = 'bg-slate-900 border border-slate-800/80 rounded-xl p-4 space-y-2';
+
+        // Deteksi operasi matematika untuk penjelasan cara kerja
+        let explanationSteps = "";
+        if (log.question.includes('+')) {
+          explanationSteps = `Langkah Penjumlahan: Jumlahkan satuan terlebih dahulu, kemudian puluhan.`;
+        } else if (log.question.includes('-')) {
+          explanationSteps = `Langkah Pengurangan: Kurangkan angka belakang. Jika angka atas lebih kecil dari bawah, pinjam 1 puluhan dari angka di depannya.`;
+        } else if (log.question.includes('×')) {
+          explanationSteps = `Langkah Perkalian: Ingat kembali tabel perkalian dasar atau gunakan penjumlahan berulang untuk mempermudah perhitungan.`;
+        } else if (log.question.includes('÷')) {
+          explanationSteps = `Langkah Pembagian: Cari angka yang jika dikalikan pembagi menghasilkan nilai awal. Contoh: x ÷ y = z berarti y × z = x.`;
+        } else {
+          explanationSteps = `Langkah Operasi Campuran (KABATAKU): Selesaikan operasi perkalian atau pembagian di dalam kurung dahulu, barulah lakukan penjumlahan/pengurangan.`;
+        }
+
+        item.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <span class="text-xs font-bold text-rose-400 bg-rose-950/80 px-2 py-0.5 rounded border border-rose-900">
+              Soal Salah #${index + 1}
+            </span>
+            <span class="text-[10px] text-slate-500 font-medium">Pemain ${log.player}</span>
+          </div>
+
+          <div class="text-base font-extrabold text-slate-100 font-playful tracking-wide">
+            Pertanyaan: <span class="text-cyan-400">${log.question}</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 text-xs pt-1 border-t border-slate-800/50">
+            <div class="bg-rose-950/30 p-2 rounded-lg border border-rose-900/40">
+              <span class="block text-slate-500 text-[10px] font-bold">JAWABAN KAMU</span>
+              <span class="text-rose-400 font-extrabold text-sm">${log.chosenAnswer} ❌</span>
+            </div>
+            <div class="bg-emerald-950/30 p-2 rounded-lg border border-emerald-900/40">
+              <span class="block text-slate-500 text-[10px] font-bold">KUNCI JAWABAN BENAR</span>
+              <span class="text-emerald-400 font-extrabold text-sm">${log.correctAnswer}  ✔️</span>
+            </div>
+          </div>
+
+          <div class="text-xs text-slate-400 bg-slate-950/80 p-2.5 rounded-lg border border-slate-800 leading-relaxed">
+            <span class="font-bold text-cyan-400 block mb-1">💡 Tips Pembahasan:</span>
+            ${explanationSteps}
+          </div>
+        `;
+        evaluationList.appendChild(item);
+      });
+    }
+
+
+    // --- KEMBALI KE MENU UTAMA ---
+    function backToMenu() {
+      isGameRunning = false;
+      clearInterval(gameInterval);
+      if (ghostCycleInterval) clearInterval(ghostCycleInterval);
+      if (comboInterval) clearInterval(comboInterval);
+
+      document.getElementById('game-screen').classList.add('hidden');
+      document.getElementById('game-over-screen').classList.add('hidden');
+      document.getElementById('menu-screen').classList.remove('hidden');
+
+      loadHighScores();
+    }
+
+
+    // --- AMBIL DATA HIGH SCORE LOKAL ---
+    function loadHighScores() {
+      const bestScore = localStorage.getItem('math_snake_highscore') || 0;
+      const maxLength = localStorage.getItem('math_snake_max_length') || 0;
+
+      document.getElementById('best-score-disp').textContent = `${bestScore} Poin`;
+      document.getElementById('max-length-disp').textContent = `${maxLength} Blok`;
+    }
+
+
+    // --- RUNNING PERTAMA KALI SAAT WINDOW DIBUKA ---
+    window.onload = function() {
+      loadHighScores();
+    };
+  </script>
+</body>
+</html>
